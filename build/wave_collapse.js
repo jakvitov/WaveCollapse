@@ -62,7 +62,7 @@ class Tile {
         }
         const imgId = "frame" + this.getType();
         const imgElement = document.getElementById(imgId);
-        context.drawImage(imgElement, coord.x, coord.y, IMG_SIZE, IMG_SIZE);
+        context.drawImage(imgElement, coord.x * IMG_SIZE, coord.y * IMG_SIZE, IMG_SIZE, IMG_SIZE);
     }
     //Return true if the wave function of this tile is collapsed
     isCollapsed() {
@@ -162,29 +162,33 @@ class Board {
     //Collapse a given tile
     collapseTile(coord) {
         const collapsingTile = this.board.get(coord);
+        //The tile is outside of the board or it has already collapsed => we do not collapse it anymore
+        if (collapsingTile === undefined || collapsingTile.isCollapsed() === true) {
+            return;
+        }
         // We apply the rules only if the tile exists (canvas borders) and is collapsed
         const upTile = this.board.get({ x: coord.x, y: coord.y + 1 });
         if (upTile !== undefined && upTile.isCollapsed()) {
             //We get all the possibilities down from the up-tile
-            const possibilites = this.rules.rules.get(upTile.type[0]).get(Direction.DOWN);
+            const possibilites = this.rules.rules.get(upTile.getType()).get(Direction.DOWN);
             //We delete all restricted possibilities from the types of the collapsing tile
             collapsingTile.restrictType(possibilites);
         }
         const downTile = this.board.get({ x: coord.x, y: coord.y - 1 });
         if (downTile !== undefined && downTile.isCollapsed()) {
-            const possibilites = this.rules.rules.get(downTile.type[0]).get(Direction.UP);
+            const possibilites = this.rules.rules.get(downTile.getType()).get(Direction.UP);
             //We delete all restricted possibilities from the types of the collapsing tile
             collapsingTile.restrictType(possibilites);
         }
         const rightTile = this.board.get({ x: coord.x + 1, y: coord.y });
         if (rightTile !== undefined && rightTile.isCollapsed()) {
-            const possibilites = this.rules.rules.get(rightTile.type[0]).get(Direction.LEFT);
+            const possibilites = this.rules.rules.get(rightTile.getType()).get(Direction.LEFT);
             //We delete all restricted possibilities from the types of the collapsing tile
             collapsingTile.restrictType(possibilites);
         }
         const leftTile = this.board.get({ x: coord.x + 1, y: coord.y });
         if (leftTile !== undefined && leftTile.isCollapsed()) {
-            const possibilites = this.rules.rules.get(leftTile.type[0]).get(Direction.RIGHT);
+            const possibilites = this.rules.rules.get(leftTile.getType()).get(Direction.RIGHT);
             //We delete all restricted possibilities from the types of the collapsing tile
             collapsingTile.restrictType(possibilites);
         }
@@ -198,6 +202,16 @@ class Board {
         //We chose random state from the allowed ones
         collapsingTile.setStateAsRandom();
         console.log("Collapsed tile [" + coord.x + ", " + coord.y + "] to type " + collapsingTile.getType());
+        //We render the collapsed tile 
+        this.renderTile(coord);
+        //
+        setTimeout(() => {
+            //We recursively collapse all the surrounding tiles
+            this.collapseTile({ x: coord.x, y: coord.y + 1 });
+            this.collapseTile({ x: coord.x, y: coord.y - 1 });
+            this.collapseTile({ x: coord.x + 1, y: coord.y });
+            this.collapseTile({ x: coord.x - 1, y: coord.y });
+        }, 1000);
     }
     //Return a coord of a random tile, that belongs to the canvas
     //We use this to start the collapse at the beginning, later we use lowest entropy tile, not random
@@ -209,11 +223,14 @@ class Board {
     renderTile(tile) {
         this.board.get(tile).draw(tile, this.context);
     }
+    //Render the contents of the board
+    renderBoard() {
+        const tile = this.getRandomTileCoord();
+        this.collapseTile(tile);
+    }
 }
 const start = () => {
     const brd = new Board();
-    const tile = brd.getRandomTileCoord();
-    brd.collapseTile(tile);
-    brd.renderTile(tile);
+    brd.renderBoard();
 };
 document.getElementById("startButton").addEventListener("click", start);
