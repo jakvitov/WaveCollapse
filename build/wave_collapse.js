@@ -186,7 +186,7 @@ class Board {
             //We delete all restricted possibilities from the types of the collapsing tile
             collapsingTile.restrictType(possibilites);
         }
-        const leftTile = this.board.get({ x: coord.x + 1, y: coord.y });
+        const leftTile = this.board.get({ x: coord.x - 1, y: coord.y });
         if (leftTile !== undefined && leftTile.isCollapsed()) {
             const possibilites = this.rules.rules.get(leftTile.getType()).get(Direction.RIGHT);
             //We delete all restricted possibilities from the types of the collapsing tile

@@ -189,33 +189,6 @@ class Board {
         this.context = context;
     }
 
-    private setupCanvas() : any {
-        const canvas : any= document.getElementById("drawBoard");
-        const ctx : any= canvas.getContext("2d");
-        ctx.clearRect(0, 0, SIDE_SIZE, SIDE_SIZE);
-        return ctx;
-    }
-    
-    //Return tile on the board with minimal entropy
-    //We use this tile as the next one to collapse to lower the collision risk
-    getMinimalEntropyTileCoord() : Coord {
-        let minCoord : Coord = {x: 0, y: 0}; 
-        let minEntropy: number = this.board.get(minCoord).getEntropy();
-
-        for (let i : number = 0; i < this.sideTiles; i ++){
-            for (let k : number = 0; k < this.sideTiles; k ++){
-                const currentCoord : Coord = {x : i, y : k}
-                const currentEntropy : number = this.board.get(currentCoord).getEntropy();
-                if (minEntropy > currentEntropy){
-                    minEntropy = currentEntropy;
-                    minCoord = currentCoord;
-                }
-            }
-        } 
-        
-        return minCoord;
-    }
-
     //Collapse a given tile
     collapseTile(coord : Coord){
 
@@ -251,7 +224,7 @@ class Board {
             collapsingTile.restrictType(possibilites);
         }
 
-        const leftTile : Tile = this.board.get({x : coord.x + 1, y : coord.y});
+        const leftTile : Tile = this.board.get({x : coord.x - 1, y : coord.y});
         if (leftTile !== undefined && leftTile.isCollapsed()){
             const possibilites : Set<number> = this.rules.rules.get(leftTile.getType()).get(Direction.RIGHT);
             //We delete all restricted possibilities from the types of the collapsing tile

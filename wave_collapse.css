@@ -1,7 +1,25 @@
+body {
+    font-family: monospace;
+    text-align: center;
+}
+
+h1 {
+    font-weight: normal;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+    font-size: 2vw;
+}
+
+.options {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
 .possibleTile {
     border: 1px solid black;
 }
 
-#drawBoard {
+canvas {
+    margin-top: 10px;
     border: 1px solid black;
 }
