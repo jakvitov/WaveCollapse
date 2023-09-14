@@ -176,7 +176,7 @@ class Board {
     //Number of images we can get to the board both vertically and horizontally 
     sideTiles : number;
 
-    constructor(){
+    constructor(context : any ){
         this.board = new CoordMap<Tile>();
         this.sideTiles = SIDE_SIZE/IMG_SIZE;
         //We fill the board with empty tiles
@@ -186,7 +186,7 @@ class Board {
             }
         }
         this.rules = Tile.createDefaultRules();
-        this.context = this.setupCanvas();
+        this.context = context;
     }
 
     private setupCanvas() : any {
@@ -282,7 +282,7 @@ class Board {
         this.collapseTile({x : coord.x, y : coord.y - 1});
         this.collapseTile({x : coord.x + 1, y : coord.y});
         this.collapseTile({x : coord.x - 1, y : coord.y});
-        }, 500)
+        }, 100)
     }
 
     //Return a coord of a random tile, that belongs to the canvas
@@ -298,17 +298,24 @@ class Board {
     }
 
     //Render the contents of the board
-    renderBoard() : void {
-        const tile : Coord = this.getRandomTileCoord();
-
-        this.collapseTile(tile);
+    renderBoard(startCoord : Coord) : void {
+        this.collapseTile(startCoord);
     }
 }
 
-const start = () => {
-    const brd : Board = new Board();
-    brd.renderBoard();
-
+const start = (startCoord : Coord, context : any) => {
+    console.log("Started rendering.")
+    const brd : Board = new Board(context);
+    brd.renderBoard(startCoord);
 }
 
-document.getElementById("startButton").addEventListener("click", start);
+document.getElementById("drawBoard").addEventListener("click", (ev) => {
+    const canvas : any= document.getElementById("drawBoard");
+    const ctx : any= canvas.getContext("2d");
+    ctx.clearRect(0, 0, SIDE_SIZE, SIDE_SIZE);
+    let drawingStart : Coord = {x : null, y : null};
+    drawingStart.x = Math.floor((ev.clientX - canvas.getBoundingClientRect().left) / IMG_SIZE);
+    drawingStart.y = Math.floor((ev.clientY - canvas.getBoundingClientRect().top) / IMG_SIZE);
+    start(drawingStart, ctx);
+});
+

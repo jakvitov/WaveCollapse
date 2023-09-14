@@ -124,7 +124,7 @@ class Tile {
 //The board is a top level facade for all Rules, Tiles and drawing related logic
 //We want to only interact with the board as for all wave function algorithm from outside 
 class Board {
-    constructor() {
+    constructor(context) {
         this.board = new CoordMap();
         this.sideTiles = SIDE_SIZE / IMG_SIZE;
         //We fill the board with empty tiles
@@ -134,7 +134,7 @@ class Board {
             }
         }
         this.rules = Tile.createDefaultRules();
-        this.context = this.setupCanvas();
+        this.context = context;
     }
     setupCanvas() {
         const canvas = document.getElementById("drawBoard");
@@ -211,7 +211,7 @@ class Board {
             this.collapseTile({ x: coord.x, y: coord.y - 1 });
             this.collapseTile({ x: coord.x + 1, y: coord.y });
             this.collapseTile({ x: coord.x - 1, y: coord.y });
-        }, 1000);
+        }, 100);
     }
     //Return a coord of a random tile, that belongs to the canvas
     //We use this to start the collapse at the beginning, later we use lowest entropy tile, not random
@@ -224,13 +224,21 @@ class Board {
         this.board.get(tile).draw(tile, this.context);
     }
     //Render the contents of the board
-    renderBoard() {
-        const tile = this.getRandomTileCoord();
-        this.collapseTile(tile);
+    renderBoard(startCoord) {
+        this.collapseTile(startCoord);
     }
 }
-const start = () => {
-    const brd = new Board();
-    brd.renderBoard();
+const start = (startCoord, context) => {
+    console.log("Started rendering.");
+    const brd = new Board(context);
+    brd.renderBoard(startCoord);
 };
-document.getElementById("startButton").addEventListener("click", start);
+document.getElementById("drawBoard").addEventListener("click", (ev) => {
+    const canvas = document.getElementById("drawBoard");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, SIDE_SIZE, SIDE_SIZE);
+    let drawingStart = { x: null, y: null };
+    drawingStart.x = Math.floor((ev.clientX - canvas.getBoundingClientRect().left) / IMG_SIZE);
+    drawingStart.y = Math.floor((ev.clientY - canvas.getBoundingClientRect().top) / IMG_SIZE);
+    start(drawingStart, ctx);
+});
