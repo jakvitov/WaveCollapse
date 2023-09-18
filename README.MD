@@ -2,6 +2,9 @@
 
 This repository contains my implementations of the wave collapse algorithm for picture generation.
 
+![Example of render](https://github.com/jakvitov/wave_collapse/blob/main/trivial_implementation/frames/wave_collapse_trivial_example.png)
+
+
 ## Trivial implemention
 
 Is my first implementation of this algorithm. I wrote it in a trivial way with some space left for optimalisations and expansions. My goal is mostly to implement the algorithm simply and understand its basics, before I move on.
