@@ -2,7 +2,7 @@
 
 This project features the most trivial implementation of wave function collapse for image generation given basic tiles and a set of rules.
 
-![Example of render](https://github.com/jakvitov/wave_collapse/blob/main/frames/wave_collapse_trivial_example.png)
+![Example of render](https://github.com/jakvitov/wave_collapse/blob/main/trivial_implementation/frames/wave_collapse_trivial_example.png)
 
 ## Algorithm
 
