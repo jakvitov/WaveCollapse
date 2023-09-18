@@ -32,6 +32,6 @@ func main() {
 
 	img := openImage(os.Args[1])
 	rules := structures.CreateRulesFromImage(&img)
-	fmt.Println(rules)
+	fmt.Println(&rules)
 	fmt.Println(img.Bounds())
 }

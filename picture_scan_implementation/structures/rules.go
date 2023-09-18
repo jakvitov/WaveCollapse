@@ -51,7 +51,7 @@ type Rules struct {
 	colors map[color.Color]Rule
 }
 
-func String(r *Rules) string {
+func (r *Rules) String() string {
 	return fmt.Sprintf("Rules: %v colors.", len((*r).colors))
 }
 
