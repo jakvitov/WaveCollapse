@@ -9,6 +9,8 @@ import (
 var adjPoints *AdjPointDirect = GetAdjacentPoints()
 
 // Maps direction with all the possible neighbours in it
+// We use more maps to keep searching in given data structures fastest possible
+// It's quite a memory -> speed tradeoff
 type Rule struct {
 	//Point is a representation of direction here
 	directionRule map[Direction]*Set[color.Color]
@@ -65,7 +67,8 @@ func (rule *Rule) fillRule(img *image.Image, point image.Point) {
 
 // Maps a color to all possible directions and neighbours in them
 type Rules struct {
-	colors map[color.Color]*Rule
+	colors    map[color.Color]*Rule
+	colorDist map[color.Color]uint64
 }
 
 func (r *Rules) String() string {
@@ -76,6 +79,8 @@ func (r *Rules) String() string {
 func CreateRulesFromImage(img *image.Image) *Rules {
 	rules := &Rules{}
 	rules.colors = make(map[color.Color]*Rule)
+	rules.colorDist = make(map[color.Color]uint64)
+
 	rect := (*img).Bounds()
 
 	//We iterate over the image
@@ -91,6 +96,7 @@ func CreateRulesFromImage(img *image.Image) *Rules {
 				rules.colors[col] = colRule
 			}
 
+			rules.colorDist[col] += 1
 			colRule.fillRule(img, image.Point{x, y})
 		}
 	}
