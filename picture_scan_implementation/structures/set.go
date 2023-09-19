@@ -5,14 +5,18 @@ type Set[T comparable] struct {
 	data map[T]bool
 }
 
-func (s Set[T]) Add(val T) {
+func CreateSet[T comparable]() *Set[T] {
+	return &Set[T]{}
+}
+
+func (s *Set[T]) Add(val T) {
 	if s.data == nil {
 		s.data = make(map[T]bool)
 	}
 	s.data[val] = true
 }
 
-func (s Set[T]) Remove(val T) {
+func (s *Set[T]) Remove(val T) {
 	if s.data == nil {
 		s.data = make(map[T]bool)
 	}

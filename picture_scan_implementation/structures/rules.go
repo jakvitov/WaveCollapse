@@ -11,16 +11,33 @@ var adjPoints *AdjPointDirect = GetAdjacentPoints()
 // Maps direction with all the possible neighbours in it
 type Rule struct {
 	//Point is a representation of direction here
-	directionRule map[Direction]Set[color.Color]
+	directionRule map[Direction]*Set[color.Color]
+}
+
+func createRule() *Rule {
+	return &Rule{}
 }
 
 func (rule *Rule) fillDirection(img *image.Image, point image.Point, dir Direction) {
+
 	//Given point is outside of the given picture
 	if !isPointInPicture(point, (*img).Bounds()) {
 		return
 	}
 
+	if rule.directionRule == nil {
+		rule.directionRule = make(map[Direction]*Set[color.Color])
+	}
+
 	colors := rule.directionRule[dir]
+
+	//The set is not initialized yet -> we create it
+	if colors == nil {
+		//fmt.Println("Creating new colors set.")
+		colors = CreateSet[color.Color]()
+		rule.directionRule[dir] = colors
+	}
+
 	colors.Add((*img).At(point.X, point.Y))
 }
 
@@ -48,7 +65,7 @@ func (rule *Rule) fillRule(img *image.Image, point image.Point) {
 
 // Maps a color to all possible directions and neighbours in them
 type Rules struct {
-	colors map[color.Color]Rule
+	colors map[color.Color]*Rule
 }
 
 func (r *Rules) String() string {
@@ -56,8 +73,9 @@ func (r *Rules) String() string {
 }
 
 // Create rules from an existing image
-func CreateRulesFromImage(img *image.Image) Rules {
-	rules := Rules{}
+func CreateRulesFromImage(img *image.Image) *Rules {
+	rules := &Rules{}
+	rules.colors = make(map[color.Color]*Rule)
 	rect := (*img).Bounds()
 
 	//We iterate over the image
@@ -66,6 +84,13 @@ func CreateRulesFromImage(img *image.Image) Rules {
 			// Check if image is in the rules
 			col := (*img).At(x, y)
 			colRule := rules.colors[col]
+
+			//The rule pointer is nil, we need to create the given rule
+			if colRule == nil {
+				colRule = createRule()
+				rules.colors[col] = colRule
+			}
+
 			colRule.fillRule(img, image.Point{x, y})
 		}
 	}
