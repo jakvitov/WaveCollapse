@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"math/rand"
 )
 
 var adjPoints *AdjPointDirect = GetAdjacentPoints()
@@ -73,6 +74,34 @@ type Rules struct {
 
 func (r *Rules) String() string {
 	return fmt.Sprintf("Rules: %v colors.", len((*r).colors))
+}
+
+func (r *Rules) GetRuleForDirection(col color.Color, direction Direction) *Set[color.Color] {
+	rule, ok := r.colors[col]
+	if !ok {
+		panic(fmt.Sprintf("Color [%v] not found in rules!", col))
+	}
+	colorRule, ok := rule.directionRule[direction]
+	if !ok {
+		panic(fmt.Sprintf("Direction [%v] not found in rules for color [%v]!", direction, col))
+	}
+	return colorRule
+}
+
+// Return a random not restricted color
+func (r *Rules) GetRandomColorNotRestricted(restrictedColors *Set[color.Color]) color.Color {
+	possibleColors := RestrictMapWithSet(r.colorDist, restrictedColors)
+
+	index := rand.Intn(len(possibleColors))
+	k := 0
+
+	for elem := range r.colorDist {
+		k += 1
+		if k == index {
+			return elem
+		}
+	}
+	panic("Error in finding the random selected color")
 }
 
 // Create rules from an existing image
