@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
@@ -9,6 +10,7 @@ import (
 	"os"
 	"picture_scan_implementation/generation"
 	"picture_scan_implementation/structures"
+	"time"
 )
 
 func openImage(path string) image.Image {
@@ -35,8 +37,14 @@ func generateImage() *structures.WaveImage {
 	img := openImage(os.Args[1])
 	rules := structures.CreateRulesFromImage(&img)
 
-	genImgSize := image.Rectangle{Min: image.Point{0, 0}, Max: image.Point{X: 640, Y: 480}}
+	genImgSize := image.Rectangle{Min: image.Point{0, 0}, Max: image.Point{X: 400, Y: 400}}
+
+	timestampStart := time.Now().Unix()
+	fmt.Println("Generation started.")
+
 	genImg := generation.GenerateImage(rules, genImgSize)
+	timestampEnd := time.Now().Unix()
+	fmt.Printf("Generation ened. Duration: [%v] s.\n", (timestampEnd - timestampStart))
 	return genImg
 }
 
