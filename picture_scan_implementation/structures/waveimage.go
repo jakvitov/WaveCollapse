@@ -1,24 +1,32 @@
 package structures
 
-import "image"
+import (
+	"image"
+	"image/color"
+	"math/rand"
+)
 
 // This struct represents a whole image, that is being created using the wave collapse
 type WaveImage struct {
+	size image.Rectangle
+
 	canvas map[image.Point]*Pixel
 
-	collapseQueue *Queue[image.Point]
+	CollapseQueue *Queue[image.Point]
 
 	rules *Rules
 
 	ajacentPixelsDirections *AdjPointDirect
 }
 
-func createWaveImage() *WaveImage {
+func CreateWaveImage(size image.Rectangle, rules *Rules) *WaveImage {
 	result := &WaveImage{}
+	result.size = size
 	//We do not initialize all of the image pixels right away, they get added, as we generate for efficiency
 	result.canvas = make(map[image.Point]*Pixel)
-	result.collapseQueue = CreateQueue[image.Point]()
+	result.CollapseQueue = CreateQueue[image.Point]()
 	result.ajacentPixelsDirections = GetAdjacentPoints()
+	result.rules = rules
 	return result
 }
 
@@ -32,8 +40,26 @@ func (board *WaveImage) restrictPixelByNeighbour(direction Direction, contraDire
 	}
 }
 
+func (board *WaveImage) isPointOnBoard(point image.Point) bool {
+	if point.X < board.size.Min.X || point.X > board.size.Max.X || point.Y < board.size.Min.Y || point.Y > board.size.Max.Y {
+		return false
+	}
+	return true
+}
+
+func (w *WaveImage) CreateRandomPoint() image.Point {
+	xVal := rand.Intn((w.size.Max.X - w.size.Min.X) + w.size.Min.X)
+	yVal := rand.Intn((w.size.Max.Y - w.size.Min.Y) + w.size.Min.X)
+
+	return image.Point{xVal, yVal}
+}
+
 // Collapse a pixel at the given coordinates
 func (board *WaveImage) CollapsePixel(point image.Point) {
+
+	if !board.isPointOnBoard(point) {
+		return
+	}
 
 	pixel, ok := board.canvas[point]
 
@@ -56,15 +82,30 @@ func (board *WaveImage) CollapsePixel(point image.Point) {
 
 	pixelColor := board.rules.GetRandomColorNotRestricted(pixel.restrictedColors)
 	pixel.isCollapsed = true
-	pixelColor = pixelColor
+	pixel.color = pixelColor
 
-	board.collapseQueue.Enqueue(board.ajacentPixelsDirections.Up.Add(point))
-	board.collapseQueue.Enqueue(board.ajacentPixelsDirections.UpRight.Add(point))
-	board.collapseQueue.Enqueue(board.ajacentPixelsDirections.UpLeft.Add(point))
-	board.collapseQueue.Enqueue(board.ajacentPixelsDirections.Left.Add(point))
-	board.collapseQueue.Enqueue(board.ajacentPixelsDirections.Right.Add(point))
-	board.collapseQueue.Enqueue(board.ajacentPixelsDirections.Down.Add(point))
-	board.collapseQueue.Enqueue(board.ajacentPixelsDirections.DownLeft.Add(point))
-	board.collapseQueue.Enqueue(board.ajacentPixelsDirections.DownRight.Add(point))
+	board.CollapseQueue.Enqueue(board.ajacentPixelsDirections.Up.Add(point))
+	board.CollapseQueue.Enqueue(board.ajacentPixelsDirections.UpRight.Add(point))
+	board.CollapseQueue.Enqueue(board.ajacentPixelsDirections.UpLeft.Add(point))
+	board.CollapseQueue.Enqueue(board.ajacentPixelsDirections.Left.Add(point))
+	board.CollapseQueue.Enqueue(board.ajacentPixelsDirections.Right.Add(point))
+	board.CollapseQueue.Enqueue(board.ajacentPixelsDirections.Down.Add(point))
+	board.CollapseQueue.Enqueue(board.ajacentPixelsDirections.DownLeft.Add(point))
+	board.CollapseQueue.Enqueue(board.ajacentPixelsDirections.DownRight.Add(point))
+}
 
+func (w *WaveImage) ColorModel() color.Model {
+	return color.RGBAModel
+}
+func (w *WaveImage) Bounds() image.Rectangle {
+	return w.size
+}
+func (w *WaveImage) At(x, y int) color.Color {
+	// Check if the given (x, y) coordinate is within the bounds of the image.
+	if !(image.Point{x, y}.In(w.size)) {
+		return color.RGBA{} // Return a default color if out of bounds.
+	}
+
+	elem := w.canvas[image.Point{x, y}]
+	return elem.color
 }

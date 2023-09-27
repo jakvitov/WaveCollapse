@@ -34,3 +34,7 @@ func (q *Queue[T]) Dequeue() T {
 
 	return result
 }
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.deqCount == len(q.data)
+}
