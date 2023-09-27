@@ -1,11 +1,10 @@
 package main
 
 import (
-	"bytes"
-	"encoding/base64"
-	"fmt"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/canvas"
 	"image"
-	"image/png"
 	_ "image/png"
 	"os"
 	"picture_scan_implementation/generation"
@@ -32,23 +31,22 @@ func openImage(path string) image.Image {
 
 }
 
-func displayImage(m image.Image) {
-	var buf bytes.Buffer
-	err := png.Encode(&buf, m)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("IMAGE:" + base64.StdEncoding.EncodeToString(buf.Bytes()))
-}
-
-func main() {
-
+func generateImage() *structures.WaveImage {
 	img := openImage(os.Args[1])
 	rules := structures.CreateRulesFromImage(&img)
 
-	genImgSize := image.Rectangle{Min: image.Point{0, 0}, Max: image.Point{X: 100, Y: 100}}
+	genImgSize := image.Rectangle{Min: image.Point{0, 0}, Max: image.Point{X: 640, Y: 480}}
 	genImg := generation.GenerateImage(rules, genImgSize)
-	fmt.Println(rules)
-	fmt.Println(img.Bounds())
-	displayImage(genImg)
+	return genImg
+}
+
+func main() {
+	a := app.New()
+	w := a.NewWindow("Images")
+
+	img := canvas.NewImageFromImage(generateImage())
+	w.SetContent(img)
+	w.Resize(fyne.NewSize(640, 480))
+
+	w.ShowAndRun()
 }
