@@ -92,14 +92,14 @@ func (r *Rules) GetRuleForDirection(col color.Color, direction Direction) *Set[c
 func (r *Rules) GetRandomColorNotRestricted(restrictedColors *Set[color.Color]) color.Color {
 	possibleColors := RestrictMapWithSet(r.colorDist, restrictedColors)
 
-	index := rand.Intn(len(possibleColors))
+	index := rand.Intn(len(possibleColors) - 1)
 	k := 0
 
 	for elem := range r.colorDist {
-		k += 1
 		if k == index {
 			return elem
 		}
+		k += 1
 	}
 	panic("Error in finding the random selected color")
 }

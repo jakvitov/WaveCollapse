@@ -23,8 +23,8 @@ func (q *Queue[T]) Dequeue() T {
 	result := q.data[q.deqCount]
 
 	//We dequeued half the array -> we create new one and copy it for space efficiency
-	if (len(q.data) / q.deqCount) > 2 {
-		newData := make([]T, 0, len(q.data)-q.deqCount)
+	if q.deqCount > 0 && float32(q.deqCount)/float32(len(q.data)) > 0.5 {
+		newData := make([]T, len(q.data)-q.deqCount, len(q.data)-q.deqCount)
 		for i := q.deqCount; i < len(q.data); i++ {
 			newData[i-q.deqCount] = q.data[i]
 		}
@@ -32,9 +32,13 @@ func (q *Queue[T]) Dequeue() T {
 		q.data = newData
 	}
 
+	q.deqCount += 1
 	return result
 }
 
 func (q *Queue[T]) IsEmpty() bool {
-	return q.deqCount == len(q.data)
+	if len(q.data) == 0 {
+		return true
+	}
+	return q.deqCount == (len(q.data) - 1)
 }

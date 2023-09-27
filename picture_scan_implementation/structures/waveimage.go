@@ -67,6 +67,11 @@ func (board *WaveImage) CollapsePixel(point image.Point) {
 	if !ok {
 		pix := createPixel(point)
 		pixel = &pix
+		board.canvas[point] = pixel
+	}
+
+	if pixel.isCollapsed {
+		return
 	}
 
 	//Restrict possibilities of this pixels color by its collapsed neighbours
